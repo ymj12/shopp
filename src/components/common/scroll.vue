@@ -67,11 +67,11 @@ props:{
         // return this. scroll.y
       }
     },
-//      watch:{
-// data(){
-//         setTimeout(this.refresh, 20)
-//       }
-//     }
+     watch:{
+data(){
+        setTimeout(this.refresh, 20)
+      }
+    }
 
     
   }
