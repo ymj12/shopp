@@ -3,7 +3,7 @@
 <Gridview :cols="3" :linespace="15" :vmargin="20" v-if="subcategories.list">
         <div class="item" v-for="(item,index) in subcategories.list" :key="index">
         <a :href="item.link">
-            <img :src="item.image" alt="">
+            <img :src="item.image" alt="" @load="categoryimages">
             <div class="item-text">{{item.title}}</div>
         </a>
     </div>
@@ -26,6 +26,11 @@ export default {
                 return {}
             }
         }
+    },
+    methods:{
+        categoryimages(){
+            this.$emit('categoryimgload')
+         }
     }
 }
 </script>

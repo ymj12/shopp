@@ -60,12 +60,6 @@ export default {
     this.getHomeGoods('sell')
 
   },
-  // mounted(){
-  //   // const refresh =
-  //       this.$bus.$on('itemimgload', ( ) => {
-  //        debounce(this.$refs.scroll.refresh(),200)
-  //   })
-  // },
         mounted(){
     const refresh =debounce(this.$refs.scroll.refresh,100)
         this.$bus.$on('itemimgloads', ( ) => {

@@ -4,24 +4,13 @@
     <div class="content">
       <Tabmenu :categroies="categroies" @selectitem="selectitem"></Tabmenu>
       <div id="tab-item">
-      <TabcontentCategory :subcategories="showSubcategory"></TabcontentCategory>
-      <Tabcontrol :titles="['综合', '新品', '销量']" @tabClick="tabClick"></Tabcontrol>
-      <Tabcontentdetail :categorydetail="showCategoryDetail"></Tabcontentdetail>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
-      <div>12</div>
+          <Tabcontrol :titles="['综合', '新品', '销量']" class="tabcontrol" ref="tabcontrol1" @tabClick="tabClick" v-show="istabfixed"></Tabcontrol>
+        <Scroll class="contents" ref="scroll" @scroll="contentscroll">
+          <TabcontentCategory :subcategories="showSubcategory" @categoryimgload="categoryimgload"></TabcontentCategory>
+          <Tabcontrol :titles="['综合', '新品', '销量']" ref="tabcontrol2" @tabClick="tabClick"></Tabcontrol>
+          <Tabcontentdetail :categorydetail="showCategoryDetail"></Tabcontentdetail>
+        </Scroll>
+       <Backtop @click.native="backClick" v-show="isShowBackTop"/>
       </div>
     </div>
   </div>
@@ -34,6 +23,10 @@ import Tabmenu from './childcomps/tabmenu.vue'
 import TabcontentCategory from './childcomps/tabcontentcategory.vue'
 import Tabcontrol from 'components/content/tabcontrol.vue'
 import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
+import Scroll from 'components/common/scroll.vue'
+import {debounce} from 'common/untils'
+import Backtop from 'components/common/backtop.vue'
+
 
 
   export default {
@@ -43,18 +36,39 @@ import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
       Tabmenu,
       TabcontentCategory,
       Tabcontrol,
-      Tabcontentdetail
+      Tabcontentdetail,
+      Scroll,
+      Backtop
+
     },
     data() {
       return {
         categroies:[],
         categoryData:{},
         currentindex:-1,
-        currentType:'pop'
+        currentType:'pop',
+        istabfixed:false,
+        taboffsettop:0,
+        isShowBackTop:false,
       }
     },
     created(){
      this.getCategroy()
+    },
+    mounted(){
+    const refresh =debounce(this.$refs.scroll.refresh,100)
+        this.$bus.$on('itemimgloads', ( ) => {
+          refresh()
+    })
+  },
+      activated() {
+      // console.log('djl');
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      // console.log('jjj');
+      this.saveY = this.$refs.scroll.getScrollY()
     },
     computed:{
       showSubcategory(){
@@ -105,6 +119,16 @@ import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
      selectitem(index){
        this.getSubcategories(index)
      },
+     categoryimgload(){
+       this.taboffsettop =this.$refs.tabcontrol2.$el.offsetTop
+     },
+     contentscroll(position){
+       this.isShowBackTop= (-position.y)>1000
+       this.istabfixed=position.y< -this.taboffsettop
+     },
+      backClick(){
+      this.$refs.scroll.scrollTo(0,0)
+    },
       tabClick(index){
       switch(index){
         case 0:
@@ -117,8 +141,8 @@ import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
           this.currentType='sell'
           break
       }
-      // this.$refs.tabcontrol1.currentindex=index;
-      // this.$refs.tabcontrol2.currentindex=index;
+      this.$refs.tabcontrol1.currentindex=index;
+      this.$refs.tabcontrol2.currentindex=index;
     },
     }
 
@@ -128,11 +152,16 @@ import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
 <style scoped>
   #category {
     height: 100vh;
+    position: relative;
   }
 .navcenter{
   background-color:var(--color-tint);
   color: #fff;
   /* position: relative; */
+}
+.tabcontrol{
+    position: relative;
+    z-index: 9;
 }
   .content {
     position: absolute;
@@ -141,6 +170,15 @@ import Tabcontentdetail from './childcomps/tabcontentdetail.vue'
     top: 44px;
     bottom: 49px;
     display: flex;
+  }
+  .contents{
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100px;
+    right: 0;
+
   }
   #tab-item{
     height: 100%;

@@ -1,6 +1,6 @@
 <template>
     <!-- <div> -->
-        <Scroll id="tab-menu">
+        <Scroll id="tab-menu" ref="scroll">
             <div class="menu-list">
                  <div class="menu-list-item" :class="{active: index===currentindex}" v-for="(item,index) in categroies" :key="index" @click="itemclick(index)">{{item.title}}
                 </div>
@@ -29,6 +29,9 @@ export default {
         return{
             currentindex:0
         }
+    },
+    activated() {
+      this.$refs.scroll.refresh()
     },
     methods:{
         itemclick(index){
